@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <error.h>
 #include <vector>
 #include <algorithm> 
 #include <unistd.h>
@@ -266,10 +267,7 @@ void gen_RMAT_graph(graph_t* G)
 void writeBinaryGraph(graph_t *G, char *filename)
 {
     FILE *F = fopen(filename, "wb");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
 	
     assert(fwrite(&G->n, sizeof(vertex_id_t), 1, F) == 1);
     

@@ -3,9 +3,7 @@
 #include <algorithm>
 #include <float.h>
 #include <string.h>
-#ifndef __APPLE__
 #include <error.h>
-#endif
 #include <assert.h>
 #include <stdarg.h>
 #include <map>
@@ -123,10 +121,8 @@ void readValidWeight(char *filename)
 {
     fprintf(stderr, "reading weights from %18s\t...  ", filename); fflush(NULL);
     FILE *F = fopen(filename, "rb");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
+
     assert(fread(&valid_num_trees, sizeof(vertex_id_t), 1, F) == 1);
     valid_weight_trees = (weight_t *)malloc(valid_num_trees * sizeof(weight_t));
     assert(valid_weight_trees);

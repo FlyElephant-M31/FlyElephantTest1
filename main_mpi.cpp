@@ -67,9 +67,7 @@ void init(int argc, char** argv, graph_t* G)
     G->scale=-1;
 
     if (argc == 1) stop_program(argc, argv, G,"");
-
-    print0(G->rank, "started\n");
-
+    
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--generate")) {
             if (argc <= i+1) stop_program(argc, argv, G, "Select graph type\n");
@@ -124,18 +122,15 @@ void init(int argc, char** argv, graph_t* G)
         if (G->scale == -1 ) {
             stop_program(argc, argv, G,"You must use -s <scale> with --gen <type>\n");
         }
-        print0(G->rank, "generating RMAT graph...\n");
         gen_RMAT_graph_MPI(G);
     } else { 
         if (should_gen_ssca2) {
             if (G->scale == -1 ) {
                 stop_program(argc, argv, G,"You must use -s <scale> with --gen <type>\n");
             }
-            print0(G->rank, "generating SSCA2 graph...\n");
             gen_SSCA2_graph_MPI(G);
         } else { 
             if (should_read_graph) {
-                print0(G->rank, "reading graph...\n");
                 readGraph_singleFile_MPI(G, graphFilename);
             } else {
                 stop_program(argc, argv, G," ");
@@ -166,6 +161,8 @@ void write_output_information(forest_t *trees, char *filename)
     }
 }
 
+
+
 int main(int argc, char **argv) 
 {
     graph_t g;
@@ -175,7 +172,6 @@ int main(int argc, char **argv)
 
     init(argc, argv, &g);
 
-    print0(g.rank, "initializing MST...\n");
     init_mst(&g);
     perf = (double *)malloc(nIters * sizeof(double));
     void* result = 0;
@@ -186,7 +182,6 @@ int main(int argc, char **argv)
         MPI_Barrier(MPI_COMM_WORLD);
         start_ts = MPI_Wtime();
         result = MST(&g);
-        MPI_Barrier(MPI_COMM_WORLD);
         finish_ts = MPI_Wtime();
         double time = finish_ts - start_ts;
         perf[i] = g.m / (1000000 * time);

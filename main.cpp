@@ -2,9 +2,7 @@
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef __APPLE__
 #include <error.h>
-#endif
 #include <assert.h>
 #include <string.h>
 #include <time.h>
@@ -12,13 +10,18 @@
 #include <math.h>
 #include <float.h>
 #include "defs.h"
-#include <algorithm>
-
 using namespace std;
 char inFilename[FNAME_LEN];
 char outFilename[FNAME_LEN];
 
 int nIters = 64;
+#if defined(CLOCK_MONOTONIC)
+#define CLOCK CLOCK_MONOTONIC
+#elif defined(CLOCK_REALTIME)
+#define CLOCK CLOCK_REALTIME
+#else
+#error "Failed to find a timing clock."
+#endif
 
 void usage(int argc, char **argv)
 {
@@ -82,20 +85,15 @@ int main(int argc, char **argv)
     perf = (double *)malloc(nIters * sizeof(double));
     void *result = 0;
 
-    printf("warmup...\n");
-    for (int i = 0; i < 4; ++i) {
-        result = MST(&g);
-    }
-
     printf("start algorithm iterations...\n");
     for (int i = 0; i < nIters; ++i) {
         printf("\tMST %d\t ...",i); fflush(NULL);
-        start_ts = gettime();
+        clock_gettime(CLOCK, &start_ts);
         result = MST(&g);
-        finish_ts = gettime();
+        clock_gettime(CLOCK, &finish_ts);
         double time = (finish_ts.tv_nsec - (double)start_ts.tv_nsec) * 1.0e-9 + (finish_ts.tv_sec - (double)start_ts.tv_sec);
         perf[i] = g.m / (1000000 * time);
-        printf("\tfinished. Time is %.4f secs: %.4f MTEPS\n", time, perf[i]);
+        printf("\tfinished. Time is %.4f secs\n", time);
     }
     printf("algorithm iterations finished.\n");
 

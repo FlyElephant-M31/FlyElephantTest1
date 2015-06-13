@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include <error.h>
 #include <unistd.h>
 #include "defs.h"
 
@@ -326,10 +327,7 @@ void gen_SSCA2_graph(graph_t* g)
     free(weights);
 	g->m = 2*numEdges;
     FILE *F = fopen(outFilename, "wb");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", outFilename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", outFilename);
     assert(fwrite(&g->n, sizeof(vertex_id_t), 1, F) == 1);
     assert(fwrite(&g->m, sizeof(edge_id_t), 1, F) == 1);
     assert(fwrite(&g->directed, sizeof(bool), 1, F) == 1);

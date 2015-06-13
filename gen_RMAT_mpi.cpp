@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <error.h>
 #include <mpi.h>
 #include <math.h>
 #include <limits.h>
@@ -93,6 +94,7 @@ void gen_RMAT_graph_MPI(graph_t* G)
     G->n = (vertex_id_t)1 << G->scale;
     G->m = G->n * (edge_id_t)G->avg_vertex_degree;
     if (strlen(G->filename) == 0) sprintf(G->filename, "rmat-%d", G->scale);
+    
 
     a = G->a;
     b = G->b;
@@ -353,10 +355,6 @@ void gen_RMAT_graph_MPI(graph_t* G)
 	    offset = degree[u]--;
 	    G->endV[G->rowsIndices[u]+offset-1] = v;
 	    G->weights[G->rowsIndices[u]+offset-1] = recv_weight[i/2];
-    }
-
-    if (undirected) {
-        G->m *= 2;
     }
 
     free(recv_edges);

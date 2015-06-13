@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef __APPLE__
 #include <error.h>
-#endif
 #include <assert.h>
 #include <math.h>
 #ifdef USE_MPI
@@ -15,10 +13,7 @@ void readGraph(graph_t *G, char *filename)
 {
     uint8_t align;
     FILE *F = fopen(filename, "rb");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
     
     assert(fread(&G->n, sizeof(vertex_id_t), 1, F) == 1);
     G->scale = log(G->n) / log (2);
@@ -43,10 +38,7 @@ void readGraph(graph_t *G, char *filename)
 void writeBinaryGraph(graph_t *G, char *filename)
 {
     FILE *F = fopen(filename, "wb");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
     assert(fwrite(&G->n, sizeof(vertex_id_t), 1, F) == 1);
     assert(fwrite(&G->m, sizeof(edge_id_t), 1, F) == 1);
     assert(fwrite(&G->directed, sizeof(bool), 1, F) == 1);
@@ -69,10 +61,7 @@ void writeTextGraph(graph_t *G)
     printf("%d:start write to file = %s\n",G->rank, filename);
     
     FILE *F = fopen(filename, "w");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
 
     for (vertex_id_t i = 0; i < G->n; i++) {
         fprintf(F, " %" PRIu32 ": [",  i);
@@ -187,10 +176,7 @@ void writeTextGraph_MPI(graph_t *G)
     printf("%d:start write to file = %s\n",G->rank,filename);
     
     FILE *F = fopen(filename, "w");
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);
 
     for (vertex_id_t i = 0; i < G->local_n; i++) {
         fprintf(F, " %" PRIu32 ": [",  VERTEX_TO_GLOBAL(i,TotVertices,size,rank));
@@ -212,11 +198,7 @@ void writeBinaryGraph_MPI(graph_t *G)
         sprintf(filename, "%s.%d", G->filename, G->rank);
     }
     FILE *F = fopen(filename, "wb");                                                
-    if (!F) {
-        fprintf(stderr, "Error in opening file %s", filename);
-        exit(EXIT_FAILURE);
-    }
-
+    if (!F) error(EXIT_FAILURE, 0, "Error in opening file %s", filename);           
                                                                                     
     assert(fwrite(&G->n, sizeof(vertex_id_t), 1, F) == 1);                          
                                                                                     
